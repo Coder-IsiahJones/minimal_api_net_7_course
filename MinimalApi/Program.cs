@@ -13,7 +13,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<SocialDbContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 
-builder.Services.AddMediatR(typeof(Program));
+builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(CreatePost).Assembly));
 
 var app = builder.Build();
 
@@ -33,7 +33,7 @@ app.MapPost("/api/posts", async (IMediator mediator, Post post) =>
     var createPost = new CreatePost { PostContent = post.Content };
     var createdPost = await mediator.Send(createPost);
 
-    return Results.CreatedAtRoute("GetById", new { createdPost.Id }, createdPost);
+    return Results.CreatedAtRoute("GetPostById", new { createdPost.Id }, createdPost);
 });
 
 app.MapGet("/api/posts", async (IMediator mediator) =>
